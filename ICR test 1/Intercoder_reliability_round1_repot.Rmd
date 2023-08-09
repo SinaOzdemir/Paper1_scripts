@@ -1,0 +1,483 @@
+---
+title: "PR+ Intercoder reliability round 1"
+description: |
+  The first analysis of inter coder reliability agreement for PR+ project.
+author:
+  - name: Sina Ozdemir
+    url: https://github.com/SinaOzdemir
+    affiliation: Department of Sociology and Political Science, Norwegian University of Science and Technology, (NTNU)
+    affiliation_url: https://www.ntnu.edu/employees/sina.ozdemir
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    code_folding: T
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(pacman)
+packs<- c("tidyverse", "jaccard", "irr","xlsx","here","patchwork","tweetrmd")
+p_load(char = packs, update = F)
+
+data_path<- here::here("Analysis","Tests","Codebook tests","Test 4")
+
+data<- xlsx::read.xlsx(file = file.path(data_path,"data_PR_test_2021-12-06_12-12.xlsx"),
+                       sheetIndex = 1,header = T,StringAsFactor = F)
+
+var_details<- data[1,] %>% as.vector(mode = "character")
+
+names(var_details) <- colnames(data)
+
+```
+
+# Coder Efficiency:
+
+```{r coder_Eff}
+
+coding_time_data<- data[-1,] %>% 
+  select(CI01, TIME_SUM,V101_01) 
+
+coding_time_data<- coding_time_data[!duplicated(coding_time_data[c("CI01", "V101_01")]), ] %>%
+  drop_na() %>%rename(tweet_id = V101_01,
+                      coder_id = CI01,
+                      coding_time = TIME_SUM)
+
+
+coding_time_data %>%
+  mutate(coding_time = as.numeric(coding_time),
+         coding_time = round((coding_time/60),1)) %>%
+  ggplot(aes( x = coder_id,y = coding_time))+geom_boxplot()+
+  theme_minimal()+
+  labs(x = "Coder ID",y = "Coding time (mins)")
+
+```
+
+It seems it takes about the same amount of time for coder 2 (Coder 2) and 3 (Coder 3) to analyze tweet while coder 1(Coder 1) is slightly faster. However, the discrepancy and median times are very much acceptable considering that we started coding quite recently and this was the first time we used the questionnaire to code.
+
+# Percentage agreement:
+
+First, I start with checking the simple percentage agreements. I will look at the overall percentage agreement then move onto pairwise agreement levels
+
+```{r pagree_all}
+
+pagree_dt<- data[-1,] %>%select(CI01:V101_01) %>% select(!V202_01)
+pagree_dt<- pagree_dt[!duplicated(pagree_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(pagree_dt),value = T,invert = T)
+
+p_agree_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  p_data<- pagree_dt %>%
+    select(any_of(vars)) %>% 
+    pivot_wider(id_cols = sym(vars[2]),
+                names_from = sym(vars[1]),
+                values_from = sym(vars[3]),
+                names_prefix = "coder_") %>% 
+    column_to_rownames(var = vars[2])
+  
+  p_agree<- agree(p_data,tolerance = 0)
+  
+  p_agree_val <- tibble(var_name = vars[3],
+                        nobs = p_agree[["subject"]],
+                        p_agree = round(p_agree[["value"]],1))
+  
+  p_agree_res <- rbind(p_agree_res,p_agree_val)
+}
+
+p_agree_res %>%
+  ggplot(aes(x = var_name,y = p_agree))+
+  geom_bar(aes(fill = p_agree),position = "dodge", stat = "identity",show.legend = F)+ 
+  geom_hline(yintercept = 85,show.legend = F)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45,hjust = 1, vjust = 1))+
+  scale_fill_gradient2(high = "green",mid = "yellow",low = "red")+
+  scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  labs(y = "percentage agreement",
+       x = "Variables",
+       title = "All coders")
+```
+
+Overall percentage agreement between the three of us seems sub-optimal for core variables, black line is drawn at 85%, all scores under it is often considered insufficient in the literature. The lowest them all is the subject of publicity. The result is somewhat unsurprising since this has been the most confusing variable so far, to a large part my inability to communicate clearly I presume.
+
+The second lowest score we have is on object of publicity: activity. There seems to be a confusion as to what constitute activity. It is a little hard for me to make sense of this result with only percentage agreement for two reasons. It is somewhat unexpected because I thought the description of "activity declaring" messages in the codebook was rather clear cut. My hunch as to why we have less than 65% agreement on this one is the how we approach it. In our last round, I decided to turn these into binary variables because a tweet can combine different types of object. For example, the first sentence could be opinion, and the second sentence could be activity declaration and so on. So my hunch is that some of those sentences have escaped our attention. In-dept comparison in the third section yields a better view .
+
+We are doing comparatively fine in the policy area identification with the exception of *Competitiveness, Justice and Home Affairs, and Foreign Affairs*. These three areas are much more vague compared to other policy areas so the result is not unexpected per se. However, we should probably discuss the policy areas more frequently, because when accounted for agreement by chance, things go sour fast.
+
+Following three graphs presents pairwise agreement between coders. Overall, it seems that Kristine and I have lower agreement with regards to policy area than Pieter and I. Overall, most disagreement seems to be between Kristine and Pieter. I have no clue how this might be the case since you two and I agree on par but you two disagree and I quadruple checked the calculations and the code.
+
+```{r pagree_coderoneandtwo}
+
+pagree_dt<- data[-1,] %>%
+  select(CI01:V101_01) %>%
+  select(!V202_01) %>%
+  filter(CI01==1|CI01 ==2)
+
+pagree_dt<- pagree_dt[!duplicated(pagree_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(pagree_dt),value = T,invert = T)
+
+p_agree_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  p_data<- pagree_dt %>%
+    select(any_of(vars)) %>% 
+    pivot_wider(id_cols = sym(vars[2]),
+                names_from = sym(vars[1]),
+                values_from = sym(vars[3]),
+                names_prefix = "coder_") %>% 
+    column_to_rownames(var = vars[2])
+  
+  p_agree<- agree(p_data,tolerance = 0)
+  
+  p_agree_val <- tibble(var_name = vars[3],
+                        nobs = p_agree[["subject"]],
+                        p_agree = round(p_agree[["value"]],1))
+  
+  p_agree_res <- rbind(p_agree_res,p_agree_val)
+}
+
+p_agree_res %>%
+  ggplot(aes(x = var_name,y = p_agree))+
+  geom_bar(aes(fill = p_agree),position = "dodge", stat = "identity",show.legend = F)+ 
+  geom_hline(yintercept = 85)+
+  scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45,hjust = 1, vjust = 1))+
+  scale_fill_gradient2(high = "green",mid = "yellow",low = "red")+
+  labs(y = "percentage agreement",
+       x = "Variables",
+       title = "Between Coder 1 and Coder 2")
+```
+
+```{r pagree_coderoneandthree}
+
+pagree_dt<- data[-1,] %>%
+  select(CI01:V101_01) %>%
+  select(!V202_01) %>%
+  filter(CI01==1|CI01 ==3)
+
+pagree_dt<- pagree_dt[!duplicated(pagree_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(pagree_dt),value = T,invert = T)
+
+p_agree_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  p_data<- pagree_dt %>%
+    select(any_of(vars)) %>% 
+    pivot_wider(id_cols = sym(vars[2]),
+                names_from = sym(vars[1]),
+                values_from = sym(vars[3]),
+                names_prefix = "coder_") %>% 
+    column_to_rownames(var = vars[2])
+  
+  p_agree<- agree(p_data,tolerance = 0)
+  
+  p_agree_val <- tibble(var_name = vars[3],
+                        nobs = p_agree[["subject"]],
+                        p_agree = round(p_agree[["value"]],1))
+  
+  p_agree_res <- rbind(p_agree_res,p_agree_val)
+}
+
+p_agree_res %>%
+  ggplot(aes(x = var_name,y = p_agree))+
+  geom_bar(aes(fill = p_agree),position = "dodge", stat = "identity",show.legend = F)+ 
+  geom_hline(yintercept = 85)+
+  scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45,hjust = 1, vjust = 1))+
+  scale_fill_gradient2(high = "green",mid = "yellow",low = "red")+
+  labs(y = "percentage agreement",
+       x = "Variables",
+       title = "Between Coder 1 and Coder 2")
+```
+
+```{r pagree_codertwoandthree}
+
+pagree_dt<- data[-1,] %>%
+  select(CI01:V101_01) %>%
+  select(!V202_01) %>%
+  filter(CI01==2|CI01 ==3)
+
+pagree_dt<- pagree_dt[!duplicated(pagree_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(pagree_dt),value = T,invert = T)
+
+p_agree_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  p_data<- pagree_dt %>%
+    select(any_of(vars)) %>% 
+    pivot_wider(id_cols = sym(vars[2]),
+                names_from = sym(vars[1]),
+                values_from = sym(vars[3]),
+                names_prefix = "coder_") %>% 
+    column_to_rownames(var = vars[2])
+  
+  p_agree<- agree(p_data,tolerance = 0)
+  
+  p_agree_val <- tibble(var_name = vars[3],
+                        nobs = p_agree[["subject"]],
+                        p_agree = round(p_agree[["value"]],1))
+  
+  p_agree_res <- rbind(p_agree_res,p_agree_val)
+}
+
+p_agree_res %>%
+  ggplot(aes(x = var_name,y = p_agree))+
+  geom_bar(aes(fill = p_agree),position = "dodge", stat = "identity",show.legend = F)+ 
+  geom_hline(yintercept = 85)+
+  scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45,hjust = 1, vjust = 1))+
+  scale_fill_gradient2(high = "green",mid = "yellow",low = "red")+
+  labs(y = "percentage agreement",
+       x = "Variables",
+       title = "Between Coder 2 and Coder 3")
+```
+
+# Krippendorf's alpha:
+
+In this section, we are looking at the Krippendorf's alpha in the same fashion as percentage agreement. The first graph is the ICR between all three of us and the other three graphs are pairwise reliability results. I put the success threshold at $\alpha = .86$ for two reasons. First of all, the paper will mainly do a mapping, in other words, the workhorse analysis will be descriptive statistics, so there won't be any probabilistic calculation to absorb random disagreements. So any disagreement will significantly effect the conclusion we can draw on, thus I think it is a sound decision to put to threshold to substantial agreement and above. The second reason is I am planning to do supervised classification using our manual coding to have a go at the full population of tweets. This may not end up in the final draft but more coherent the data we produce (i.e strong reliability), easier it will be to tease out patterns from the data and train a robust classifier.
+
+```{r kalpha}
+
+kalpha_dt<- data[-1,] %>%filter(CASE != 43) %>% 
+  select(CI01:V101_01) %>%
+  select(!V202_01) %>%
+  mutate(across(V301_01:V401_12,~as.factor(.x))) %>% 
+  mutate(across(V301_01:V401_12,~recode_factor(.x,`2`= 0,`1`=1)))
+  
+
+kalpha_dt<- kalpha_dt[!duplicated(kalpha_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(kalpha_dt),value = T,invert = T)
+
+kalpha_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  k_test_dt<-kalpha_dt %>%
+  select(any_of(vars)) %>% 
+  pivot_wider(.,id_cols = sym(vars[1]),
+              names_from = sym(vars[2]),
+              names_prefix = "twt_",
+              values_from = sym(vars[3])) %>% 
+  column_to_rownames(var = vars[1]) %>%
+  mutate(across(everything(),~as.numeric(as.character(.x)))) %>% 
+           as.matrix()
+  
+  kalpha <- irr::kripp.alpha(k_test_dt,method = "nominal")
+ 
+  k_df<- tibble(variable = vars[3],
+                kalpha = kalpha[["value"]])
+  
+  kalpha_res<- rbind(kalpha_res,k_df)
+}
+
+kalpha_res %>%
+  filter(!grepl(x = variable,pattern = "V40")) %>% 
+  ggplot(aes(x = variable, y= kalpha)) +
+  geom_bar(aes(fill = kalpha),stat = "identity",position = "dodge")+
+  geom_text(aes(label = round(kalpha,2)))+
+  geom_hline(yintercept = .86,color = "red")+
+  scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  theme_minimal()+
+  labs(x= "variables",
+       y= "krippendorf's alpha",
+       title = "K's alpha for all coders")
+```
+
+The results are somewhat underwhelming, especially the variables that matter the most; object of publicity and subject of publicity. However, I refrain interpreting the exact score a little because krippendorf's alpha is very conservative when applied to nominal variables (in our case dummy) with a small dataset (n = 19). Yet, it is still quite informative. Broadly speaking, we need to discuss. I will set up a teams channel to post questions. Perhaps the most interesting take away from this analysis is the fact that Kristine and I are almost systematically disagreeing about the policy area Economic and Financial Affairs ($\alpha = -0.03$).
+
+```{r kalpha_coderoneandtwo}
+
+
+kalpha_dt<- data[-1,] %>%
+  filter(CASE != 43) %>%
+  filter(CI01 == 1 | CI01 == 2) %>% 
+  select(CI01:V101_01) %>%
+  select(!V202_01) %>%
+  mutate(across(V301_01:V401_12,~as.factor(.x))) %>% 
+  mutate(across(V301_01:V401_12,~recode_factor(.x,`2`= 0,`1`=1)))
+  
+
+kalpha_dt<- kalpha_dt[!duplicated(kalpha_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(kalpha_dt),value = T,invert = T)
+
+kalpha_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  k_test_dt<-kalpha_dt %>%
+  select(any_of(vars)) %>% 
+  pivot_wider(.,id_cols = sym(vars[1]),
+              names_from = sym(vars[2]),
+              names_prefix = "twt_",
+              values_from = sym(vars[3])) %>% 
+  column_to_rownames(var = vars[1]) %>%
+  mutate(across(everything(),~as.numeric(as.character(.x)))) %>% 
+           as.matrix()
+  
+  kalpha <- irr::kripp.alpha(k_test_dt,method = "nominal")
+ 
+  k_df<- tibble(variable = vars[3],
+                kalpha = kalpha[["value"]])
+  
+  kalpha_res<- rbind(kalpha_res,k_df)
+}
+
+kalpha_res %>%
+  filter(!grepl(x = variable,pattern = "V40")) %>% 
+  ggplot(aes(x = variable, y= kalpha)) +
+  geom_bar(aes(fill = kalpha),stat = "identity",position = "dodge")+
+  geom_text(aes(label = round(kalpha,2)))+
+  geom_hline(yintercept = .86,color = "red")+
+ scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  theme_minimal()+
+  labs(x= "variables",
+       y= "krippendorf's alpha",
+       title = "K's alpha for Coder 1 and Coder 2")
+
+
+```
+
+```{r kalpha_one_three}
+
+
+kalpha_dt<- data[-1,] %>%
+  filter(CASE != 43) %>%
+  filter(CI01 == 1 | CI01 == 3) %>% 
+  select(CI01:V101_01) %>%
+  select(!V202_01) %>%
+  mutate(across(V301_01:V401_12,~as.factor(.x))) %>% 
+  mutate(across(V301_01:V401_12,~recode_factor(.x,`2`= 0,`1`=1)))
+  
+
+kalpha_dt<- kalpha_dt[!duplicated(kalpha_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(kalpha_dt),value = T,invert = T)
+
+kalpha_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  k_test_dt<-kalpha_dt %>%
+  select(any_of(vars)) %>% 
+  pivot_wider(.,id_cols = sym(vars[1]),
+              names_from = sym(vars[2]),
+              names_prefix = "twt_",
+              values_from = sym(vars[3])) %>% 
+  column_to_rownames(var = vars[1]) %>%
+  mutate(across(everything(),~as.numeric(as.character(.x)))) %>% 
+           as.matrix()
+  
+  kalpha <- irr::kripp.alpha(k_test_dt,method = "nominal")
+ 
+  k_df<- tibble(variable = vars[3],
+                kalpha = kalpha[["value"]])
+  
+  kalpha_res<- rbind(kalpha_res,k_df)
+}
+
+kalpha_res %>%
+  filter(!grepl(x = variable,pattern = "V40")) %>% 
+  ggplot(aes(x = variable, y= kalpha)) +
+  geom_bar(aes(fill = kalpha),stat = "identity",position = "dodge")+
+  geom_text(aes(label = round(kalpha,2)))+
+  geom_hline(yintercept = .86,color = "red")+
+  scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  theme_minimal()+
+  labs(x= "variables",
+       y= "krippendorf's alpha",
+       title = "K's alpha for Coder 1 and Coder 3")
+
+
+```
+
+```{r kalpha_twoandthree}
+
+
+kalpha_dt<- data[-1,] %>%
+  filter(CASE != 43) %>%
+  filter(CI01 == 2 | CI01 == 3) %>% 
+  select(CI01:V101_01) %>%
+  select(!V202_01) %>%
+  mutate(across(V301_01:V401_12,~as.factor(.x))) %>% 
+  mutate(across(V301_01:V401_12,~recode_factor(.x,`2`= 0,`1`=1)))
+  
+
+kalpha_dt<- kalpha_dt[!duplicated(kalpha_dt[c("CI01", "V101_01")]), ] %>%
+  drop_na()
+
+test_vars<- grep(pattern = "CI02|V202_01",x = colnames(kalpha_dt),value = T,invert = T)
+
+kalpha_res<- tibble()
+
+for (i in 2:(length(test_vars)-1)) {
+  vars<- c(test_vars[1],test_vars[21],test_vars[i])
+  
+  k_test_dt<-kalpha_dt %>%
+  select(any_of(vars)) %>% 
+  pivot_wider(.,id_cols = sym(vars[1]),
+              names_from = sym(vars[2]),
+              names_prefix = "twt_",
+              values_from = sym(vars[3])) %>% 
+  column_to_rownames(var = vars[1]) %>%
+  mutate(across(everything(),~as.numeric(as.character(.x)))) %>% 
+           as.matrix()
+  
+  kalpha <- irr::kripp.alpha(k_test_dt,method = "nominal")
+ 
+  k_df<- tibble(variable = vars[3],
+                kalpha = kalpha[["value"]])
+  
+  kalpha_res<- rbind(kalpha_res,k_df)
+}
+
+kalpha_res %>%
+  filter(!grepl(x = variable,pattern = "V40")) %>% 
+  ggplot(aes(x = variable, y= kalpha)) +
+  geom_bar(aes(fill = kalpha),stat = "identity",position = "dodge")+
+  geom_text(aes(label = round(kalpha,2)))+
+  geom_hline(yintercept = .86,color = "red")+
+  scale_x_discrete(labels = var_details)+
+  coord_flip()+
+  theme_minimal()+
+  labs(x= "variables",
+       y= "krippendorf's alpha",
+       title = "K's alpha for Coder 2 and Coder 3")
+
+
+
+
+```
+

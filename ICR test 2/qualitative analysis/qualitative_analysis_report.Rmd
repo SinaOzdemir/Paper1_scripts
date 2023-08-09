@@ -1,0 +1,240 @@
+---
+title: "Qualitative analysis of intercoder reliability test"
+author: "Sina Furkan Özdemir"
+date: "2/23/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tweetrmd)
+library(tidyverse)
+knitr::opts_chunk$set(echo = F)
+```
+
+## subject of publicity (SoP) coding differences:
+
+```{r sop_graph,out.height="50%",out.width="50%"}
+knitr::include_graphics(here::here("graphs","sop_kalpha.jpeg"))
+```
+
+### Sina and Kristine:
+
+There are total of 24 dissonant coding between me and Kristine out of 100 tweets. Upon closer examination there are three core coding differences in my and Kristine's coding about subject of publicity. These are *tacit agency in the message*, *retweets that include plural personal pronouns (i.e we, our)*, and *the interpretation of agency of mentioned actors*. 
+
+
+The first systematic difference is the threshold I and Kristine uses to attribute agency to mentioned actors in a tweet. This case is illustrated by figure 1 and 2. Kristine attributed agency to @EU_Env and @RanInitiative in these tweets while coding subject, whereas Sina did not. In some other cases, the employed treshold of agency is reversed among coders where Sina attributed agency but Kristine did not. Such differences amount up to `r (9/24)*100`% of the dissonance among the coders.
+
+```{r diff_1_example, fig.cap="1"}
+
+tweet_screenshot(tweet_url = "https://twitter.com/EU_ENV/status/1252509373462728705")
+
+```
+
+
+```{r diff_2_example2, fig.cap="2"}
+
+tweet_screenshot(tweet_url = "https://twitter.com/EUHomeAffairs/status/1220660296869728258")
+
+```
+
+
+
+The second one is assuming agency in the tweets. As the figure 3 below illustrates, there are tweets without explicit mention of an agent behind the output.In most cases, I tend to code these tweets with subject of publicity: none while Kristine seems more prone to attributing agency to the tweeting account. This accounts for `r (7/24)*100`% of the difference in the coding. We decided that we will allow some level of interpretation of agency even if it is not explicitly mentioned in the tweet in our previous meetings. However, this decision was made in the light of tweets such as the figure 4, where the agency is almost explicit (fully explicity when the multi-media is taken into account). However, the decision is not formalized in the codebook with a boundary on the interpretation.
+
+
+
+```{r diff_2_example, fig.cap="3"}
+tweet_screenshot(tweet_url = "https://twitter.com/EU_Commission/status/1235245669989986304")
+
+```
+
+
+```{r dec_example_1, fig.cap="4"}
+tweet_screenshot(tweet_url = "https://twitter.com/KadriSimson/status/1202996068914470918")
+```
+
+
+The last difference is our approach to retweeted tweets with personal pronoun. There are several tweets where cascading mention of actors create a very complex agency reporting structure as illustrated in the figure 5. In most cases, these manifest themselves as an account retweeting another account's tweet which includes a personal pronoun. In some cases, agents in the retweeted tweet includes the retweeter but not always. Kristine and I approach interprets the agency structure in these tweets differently. This difference accounts for `r (2/24)*100`% of the dissonance in the subject of publicity coding. Overall, I tends to include the retweeting account in the set of agents while coding the retweet, thus coding them as **compound** while Kristine tends to exclude the retweeter from the set thus coding the subject of publicty as **other actors**. 
+
+```{r diff_3_example, fig.cap="5"}
+tweet_screenshot(tweet_url = "https://twitter.com/EUEnvironment/status/1229682878126198784")
+```
+
+Besides these systematic differences, most of the dissonance in the subject of publicity between coders are due to human error. For example, I equated @EU_GNSS to @EU4Space in the case of figure 6 as if they are the same accounts while obviously they are not the same agency.
+
+```{r hum_err_1_examp, fig.cap="6"}
+tweet_screenshot(tweet_url = "https://twitter.com/EU4Space/status/1230454286984863745")
+```
+
+#### Possible solution
+
+It is hard to identify a systematic difference in the results however. Only in dissonance 1 there seems to be a coding pattern as illustrated by the table-1 below: 
+
+```{r coding_pat_table}
+coding_pattern<- data.frame(tweet_id = c("x1214489140466716673","x1235245669989986304","x1250722806591086593","x1222441176160260097","x1288373984610967554","x1230168541653020673","x1225346800904740864"),
+                            sfo = c(5,5,5,5,5,5,5),
+                            kg = c(2,3,2,2,2,1,1))
+
+knitr::kable(coding_pattern)
+```
+
+It is possible to sort type 1 dissonance if I revise the tweets I coded as subject of publicity: "other" if Kristine and I can agree on the threshold of agency. 
+
+
+### Sina and Pieter
+
+There are total of 45 differences between my and Pieter's coding out of 100. In similar vein, the difference between Pieter's and my coding are due to three key dissonance. These are namely *threshold to attribute agency*, *retweets that include plural personal pronouns (i.e we, our)* and *application of coding rules*. Very much like the coding difference between my coding and Kristine's, it seems like I have a higher threshold to attribute agency to mentioned accounts. This dissonance accounts for `r (9/45)*100`% of the coding difference. Figure 7 illustrates this point.
+
+```{r so_pdw_diff_1_example, fig.cap="7"}
+
+tweet_screenshot(tweet_url = "https://twitter.com/EUHomeAffairs/status/1220660296869728258")
+
+```
+
+In this example, I coded attributed agency to only @EUHomeAffairs and coded SoP as self because the tweet says *"@EUHomeAffair's @RanEurope initiative"*. Pieter, on the other hand, followed a more stringent approach and attributed agency to all mentioned accounts in the tweet, thus coded it as compound.
+
+The dissonance 2 regarding how to approach retweets with personal pronouns seems to be another regular difference between my coding and Pieter. As illustrated by figure 8, I seem to perceive these messages as retweeting account talking about other actors practices and code it as such but Pieter seems to apply the exception rule for "compound" category.
+
+```{r so_pdw_diff_2_example, fig.cap="8"}
+tweet_screenshot(tweet_url = "https://twitter.com/EU_Health/status/1250794088921812992")
+```
+
+Last type of dissonance is the inconsistent application of coding rules which amounts up to `r(5/45)*100`% of the coding differences. This broad category of dissonance includes two key differences. The First and foremost is about how we treat the retweets. It seems Pieter miss the retweets and code the tweets as if it is primary tweet such as the following figure.
+
+```{r so_pdw_diff_3_example2, fig.cap="9"}
+
+tweet_screenshot("https://twitter.com/EUHomeAffairs/status/1227871013079257090")
+```
+
+Second difference is Pieter's interpretation of the use of plural personal pronouns in tweets by institutional accounts. He seems to interpret agency as "self" whereas I tend to apply the exception rule more often as illustrated by the figure below.
+
+```{r so_pdw_diff_3_example3, fig.cap="10"}
+tweet_screenshot("https://twitter.com/EUClimateAction/status/1285117424510083072")
+```
+
+
+Beyond these three types of dissonance, the rest of the differences seem idiosyncratic human error.
+
+#### Possible solutions
+
+
+The following cross tabulation illustrates the coding differences. The most common coding pattern where it is sfo:"other actors" - pdw:"compound" is due to the fact that I missed the mention of certain actors in the tweet (i.e human error). The second most common coding pattern where sfo:"none" - pdw:"other actors" is partially due to dissonance type 1 and partially due to human error.
+
+```{r sfo_pdw_coding_diff}
+
+a<-read.csv(file = here::here("qualitative analysis","sop_sfo_pdw_diff.csv"),header = T,sep = ",") %>% 
+  group_by(sfo,pdw) %>% summarise(n = n(),
+                                  perc_shar = round((n/45)*100,1))
+
+a %>% knitr::kable(.)
+
+```
+
+At this point, there are a few possible solutions to remedy these dissonances. For example, I could introduce an attention check question to the questionnaire that forces the coder to pay attention to whether it is a retweet or not. Similarly, a set of clarification rules about how to deal with SoP in retweets in the codebook may be useful. However, considering the fact that Pieter is almost done with his sample, these would not help with the quality of the extant dataset. So, I concur with Pieter's suggestion to remove his coding from the dataset and recode them myself. Therefore, I will only focus on the coding differences between Kristine and I.
+
+## Object of Publicity differences
+
+
+```{r oop_graph, out.height="50%",out.width="50%"}
+knitr::include_graphics(here::here("graphs","oop_kalpha.jpeg"))
+```
+
+### Identity and mandate
+
+Upon closer examination, there is only 8 out of 100 tweets differently coded between my and Kristine's coding. All of them seem to be due to different interpretation of the category. Figure below illustrates these differences.
+
+
+```{r 301_01_dif_example, fig.cap="11"}
+
+tweet_screenshot("https://twitter.com/JEPaquetEU/status/1198929314353422336")
+
+```
+
+Here, I interpreted *" @EUeic will make a huge impact by emulating positive features of traditional VCs & investing in risky research needed to turn scientific breakthroughs into viable products."* but Kristine did not. I think these differences are mainly due to the fact that the definition for the category is changed recently and still quite vague. A revision of the definition and coding as well as a repeated test of intercoder reliability of this category alone should resolve the problem. A more pragmatic approach would be to either drop this variable as suggested by Pieter and Kristine in the last meeting. Since identity and mandate is only one indicator of broader theoretical concept of one-way communication strategy, we would still have enough to proceed with the analysis.
+
+
+### Output
+
+There are total of 21 dissonant codings of output category between my and Kristine's coding. There seems to be several key patterns causing the difference. The first is the tweets that are in and of themselves are output such as public service announcements as illustrated by the figure below. Kristine coded these as output while I mostly coded this as "other" in the object of publicity categories.
+
+```{r 301_02_diff_ex1, fig.cap="12"}
+
+
+tweet_screenshot("https://twitter.com/EU_ENV/status/1222441176160260097")
+
+
+```
+
+The second source of dissonance is potential borderline cases between output, identity, opinion and activity. Following examples through figure 13 to 15 illustrate this point. This probably due to the fact that a) these cases are borderline and b) the definition of output category is not clear enough. Since I still have quite a bit of tweets to code, agreeing on a practice should improve the situation for the rest of the dataset.
+
+
+
+```{r 301_02_diff_ex2, fig.cap="13"}
+
+tweet_screenshot("https://twitter.com/eu_near/status/1253695599121178627")
+
+
+
+```
+
+```{r, fig.cap="14"}
+tweet_screenshot("https://twitter.com/JEPaquetEU/status/1227155670551715840")
+
+```
+
+
+```{r, fig.cap="15"}
+
+tweet_screenshot("https://twitter.com/eu_near/status/1252905647181619200")
+
+```
+
+
+The last possible source of dissonance is the lower threshold to assume a tweet to be an output message. As illustrated by the figure 16 below, I didn't interpret the tweet as an output message but Kristine did. Similar to the last source, making a decision on how to proceed with such tweets should be sufficient to improve the data quality for the rest of the dataset.
+
+```{r 301_02_diff_ex3, fig.cap="16"}
+
+tweet_screenshot("https://twitter.com/EU_Health/status/1224684857890164736")
+
+
+```
+
+### Activity
+
+Among the categories, activity seems to be the most problematic one in terms of agreement despite the alpha level is not too bad for it. Out of 10 tweets that are coded different, almost all of them are due to the fact that we understand the category definition differently. To name a few differences, Kristine seems to code images of meetings, giving speeches etc. as an indicator of activity while I do not. I think the dissonance stems from the ambiguity in the codebook.
+
+>meetings, handshakes, travel, signing documents,  conference participation by officials, attending meetings, hosting other officials, organizing workshops, conferences, meetings where the message announces the time and date of such events to the broader public, press releases and declarations.
+
+It looks like I apply *"announces the time and date"* as a necessary codition to be an activity reporting where as KG does not.
+
+
+### Opinion
+
+I am not really sure what has led to the level of disagreement in the opinion category. Closer examination has not revealed any clear patterns of dissonance. There are however a few possible sources. These are:
+
+
+    1) Classifying demands as opinion such as the figure 17
+    
+    
+```{r, fig.cap="17"}
+tweet_screenshot("https://twitter.com/eu_eeas/status/1215186370941136896")
+```
+
+
+
+    2) Coding non-celebratory symbolic communications such as condolences as opinion as the figure 18
+    
+    
+```{r, fig.cap = "18}
+tweet_screenshot("https://twitter.com/kmathernova/status/1214855793817862147")
+```
+
+
+    3) Treating hashtags such as "StrongerTogether", "TimeForAction" and "InvestinHumanity" as opinion
+    
+
+These are, however, a few possible issues which I suspect might have caused the dissoannce. In most cases, I could not find opinion indicators in the tweets so I am not sure why KG coded them as opinion.
+
+
+###
+

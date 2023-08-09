@@ -1,0 +1,51 @@
+---
+title: "Post ICR Discussion points"
+author: "Sina Furkan Özdemir"
+date: "3/2/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Subject of publicity problems:
+
+1) We hould clarify "how much agency" is enough agency to code someone as a subject of publicity. It seems we have different tresholds and this causes difference in coding. In most cases, it causes a confusion between "other actors" and "compound" categories
+
+2) Subject of publicity in retweets with personal pronouns is one of the more common problems. I came up with the following protocol to solve this issue.
+
+    1) If the retweeted tweet is about the retweeting account by explicit mention, code SoP as "self"
+    
+    2) If the retweeted tweet is only about other actors besides retweeting account, code SoP as "other actors"
+    
+    3) If the retweeted tweet is only about other actos, contains plural personal pronouns and the agency of the retweeting account cannot be reasonably identified in the retweeted tweet, code SoP as "other actors"
+    
+    4) If retweeted tweet is about other actors and the tweet attributes some agency to the retweeting account in the retweeted tweet by explicit mention, code SoP as "compopund"
+    
+    5) If retweeted tweet contains plural personal pronouns and it is both about other actors and retweeting account, such as bureaucrats saying "we" and the institution of the bureaucrat retweeting the tweet, code the SoP as "compound"
+    
+    
+3) We probably need a clarification about how to code SoP in tweets from institutions that mention the person in charge of the institution. This was mainly a problem between me and Pieter but since his section will be recoded, it would be nice to have a clarification note in the codebook.
+
+4) Public service announcements (PSA) and tweets that are themselves an output are a major problem across all categories. In the case of SoP, I tend to code them as "none" whereas you and Pieter code "self","other","compound" depending on the content. We should probably have a rule about these in the codebook
+
+
+# Object of publicity:
+
+1) We need agree on a final definition of Identity and Mandate. Preferably, simplify and concretize it as well.
+
+2) Decide on how concrete/observable a political act should be to categorize it as output. We have a good amount of coding difference because we disagreed if something is an output,activity or an opinion.
+
+3) PSAs are a problem here as well.
+
+4) I couldn't identify a reason why we coded differently for a large portion of opinion coding. We should probably go over some of those tweets and clarify things.
+
+5) We should decide on what to do with demands such as "EU calls on XYZ to do ABC". We seem to interpret them differently.
+
+6) We need to decide if we want to code non-celebratory symbolic messages such as condolences as opinion or not.
+
+# Policy areas:
+
+1) Most of the difference seems to be because of simple human error. I don't think there is any major systematic difference in policy area variables. The only thing we probably should discuss is how we use policy area - none. It looks like you don't use it at all.
+

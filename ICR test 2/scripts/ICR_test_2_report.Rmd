@@ -1,0 +1,87 @@
+---
+title: "ICR test 2 results"
+author: "Sina Furkan Özdemir"
+date: "2/21/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,out.height = "100%",out.width = "110%")
+
+library(here)
+library(xlsx)
+library(tidyverse)
+library(knitr)
+graph_path<- here("graphs")
+
+variable_names<- read.xlsx(file = here("variable_names.xlsx"),sheetIndex = 1) %>% 
+  filter(grepl(pattern = "^CI|V201|V30*|V40*",x = VAR))
+
+```
+
+# Variable names for reference:
+
+```{r var_names}
+kable(variable_names)
+```
+
+# Subject of publicity
+
+## Percentage agreement
+
+```{r sop_pagree}
+include_graphics(path = file.path(graph_path,"sop_pagree.jpeg"))
+```
+
+
+## Krippendorf's alpha
+
+
+```{r sop_kalpha}
+
+include_graphics(path = file.path(graph_path,"sop_kalpha.jpeg"))
+
+```
+
+
+# Object of Publicity
+
+## Percentage agreement
+
+```{r oop_pagree}
+
+include_graphics(path = file.path(graph_path,"oop_pagree.jpeg"))
+
+
+```
+
+
+## Krippendorf's alpha
+
+
+```{r oop_kalpha}
+include_graphics(path = file.path(graph_path,"oop_kalpha.jpeg"))
+
+```
+
+
+# Policy areas
+
+## Percentage agreement
+
+```{r pa_pagree}
+
+include_graphics(path = file.path(graph_path,"policy_area_agreement.jpeg"))
+
+```
+
+
+## Krippendorf's alpha
+
+```{r pa_kalpha}
+
+include_graphics(path = file.path(graph_path,"pa_kalpha.jpeg"))
+
+
+```
+
